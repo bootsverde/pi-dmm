@@ -1,0 +1,5 @@
+pygame>=2.5.0
+numpy>=1.24.0
+
+# Pi hardware — install these on the Pi only
+# pip install adafruit-circuitpython-ads1x15 adafruit-blinka RPi.GPIO
