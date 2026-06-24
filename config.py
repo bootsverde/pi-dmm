@@ -27,6 +27,11 @@ CH_OHM = 2   # A2: voltage across unknown resistor (series with R_REFERENCE)
 
 # GPIO (BCM numbering)
 PIN_BUZZER = 18
+PIN_ENC_CLK = 17
+PIN_ENC_DT = 27
+PIN_ENC_SW = 22
+PIN_FUSE_SENSE = 24
+PIN_LED_OVL = 25
 
 # DC voltage: R1=150k top, R2=10k bottom -> ratio = (150+10)/10 = 16
 DC_DIVIDER_RATIO = 16.0
@@ -42,3 +47,5 @@ V_SUPPLY = 3.3
 CONTINUITY_THRESHOLD = 50.0
 
 WAVEFORM_SAMPLES = 400
+
+NUM_MODES = 5

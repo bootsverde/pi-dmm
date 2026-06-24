@@ -14,22 +14,26 @@ class Display:
         self.font_med = pygame.font.Font(None, 36)
         self.font_small = pygame.font.Font(None, 28)
 
-        btn_w = 140
+        btn_count = len(MODE_NAMES)
         btn_h = 50
+        margin = 15
+        total_space = SCREEN_WIDTH - 2 * margin
+        btn_w = (total_space - (btn_count - 1) * 10) // btn_count
         self.mode_buttons = []
-        for i in range(len(MODE_NAMES)):
-            x = 15 + i * (btn_w + 10)
+        for i in range(btn_count):
+            x = margin + i * (btn_w + 10)
             self.mode_buttons.append(pygame.Rect(x, 8, btn_w, btn_h))
 
-        self.hold_button = pygame.Rect(SCREEN_WIDTH - 150, SCREEN_HEIGHT - 52, 130, 42)
-        self.scope_rect = pygame.Rect(20, 260, SCREEN_WIDTH - 40, 170)
+        self.scope_rect = pygame.Rect(20, 260, SCREEN_WIDTH - 40, 150)
+        self.hold_button = pygame.Rect(SCREEN_WIDTH - 150, SCREEN_HEIGHT - 42, 130, 36)
 
-    def update(self, mode, reading, waveform, holding):
+    def update(self, mode, reading, waveform, holding, fuse_blown=False, overload=False):
         self.screen.fill(BLACK)
         self._draw_mode_bar(mode)
         self._draw_reading(mode, reading, holding)
         self._draw_scope(waveform, mode)
         self._draw_hold_button(holding)
+        self._draw_alerts(fuse_blown, overload)
         pygame.display.flip()
 
     def _draw_mode_bar(self, active):
@@ -140,6 +144,17 @@ class Display:
         pygame.draw.rect(self.screen, WHITE, self.hold_button, 2, border_radius=6)
         txt = self.font_med.render("HOLD", True, BLACK if holding else WHITE)
         self.screen.blit(txt, txt.get_rect(center=self.hold_button.center))
+
+    def _draw_alerts(self, fuse_blown, overload):
+        if fuse_blown:
+            box = pygame.Rect(SCREEN_WIDTH // 2 - 120, 170, 240, 50)
+            pygame.draw.rect(self.screen, RED, box, border_radius=8)
+            pygame.draw.rect(self.screen, WHITE, box, 2, border_radius=8)
+            txt = self.font_large.render("FUSE BLOWN", True, WHITE)
+            self.screen.blit(txt, txt.get_rect(center=box.center))
+        elif overload:
+            txt = self.font_med.render("OVL", True, RED)
+            self.screen.blit(txt, (SCREEN_WIDTH - 70, 75))
 
     def handle_touch(self, pos):
         for i, rect in enumerate(self.mode_buttons):

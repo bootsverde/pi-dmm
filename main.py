@@ -3,11 +3,13 @@ import sys
 from config import *
 from dmm import DMM
 from display import Display
+from encoder import Encoder
 
 
 def main():
     dmm = DMM()
     display = Display()
+    encoder = Encoder()
     clock = pygame.time.Clock()
     mode = MODE_DCV
 
@@ -16,8 +18,19 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                elif event.key == pygame.K_LEFT:
+                    mode = (mode - 1) % NUM_MODES
+                    dmm.waveform.clear()
+                elif event.key == pygame.K_RIGHT:
+                    mode = (mode + 1) % NUM_MODES
+                    dmm.waveform.clear()
+                elif event.key == pygame.K_SPACE:
+                    dmm.toggle_hold()
+                elif event.key == pygame.K_f:
+                    dmm._sim_fuse_blown = not dmm._sim_fuse_blown
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 action, value = display.handle_touch(event.pos)
                 if action == "mode":
@@ -27,9 +40,17 @@ def main():
                 elif action == "hold":
                     dmm.toggle_hold()
 
+        encoder.poll()
+        turn = encoder.get_turn()
+        if turn != 0:
+            mode = (mode + turn) % NUM_MODES
+            dmm.waveform.clear()
+        if encoder.get_press():
+            dmm.toggle_hold()
+
         reading = dmm.read(mode)
         waveform = dmm.get_waveform()
-        display.update(mode, reading, waveform, dmm.hold)
+        display.update(mode, reading, waveform, dmm.hold, dmm.fuse_blown, dmm.overload)
 
         clock.tick(120 if mode == MODE_SCOPE else 30)
 
